@@ -64,6 +64,11 @@ inline void uart_send(const T &data)
 
 void user_init()
 {
+    // 启用 DWT 周期计数器（用于精确延时）
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+    DWT->CYCCNT = 0;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
     // 配置串口波特率
     huart1.Init.BaudRate = user::config::g_baudRate;
     HAL_UART_Init(&huart1);

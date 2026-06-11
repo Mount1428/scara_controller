@@ -225,14 +225,20 @@ namespace user
 
         std::int32_t target_step_x_{}, target_step_y_{};
 
+        static void delay_us(std::uint32_t us) noexcept
+        {
+            // DWT 周期计数器精确延时
+            std::uint32_t start = DWT->CYCCNT;
+            std::uint32_t ticks = us * (SystemCoreClock / 1'000'000);
+            while ((DWT->CYCCNT - start) < ticks)
+                ;
+        }
+
         void step_once(bool motor_x_updated, bool motor_y_updated) noexcept
         {
             if (motor_x_updated || motor_y_updated)
             {
-                // 延时6us后清除脉冲（根据电机驱动的要求，脉冲宽度至少为6us）
-                for (int i = 0; i < 6; ++i)
-                    for (int j = 0; j < 72; ++j)
-                        __NOP(); // 72MHz下大约1us
+                delay_us(6); // 脉冲宽度至少 6µs
                 motor_x_.set_pulse(false);
                 motor_y_.set_pulse(false);
             }
