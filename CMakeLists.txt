@@ -57,6 +57,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     FILES
         user/config.hpp
         user/math_utils.hpp
+        user/mem_utils.hpp
         user/motor.hpp
         user/polinomial_profile.hpp
         user/protocol.hpp
@@ -68,7 +69,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    user
+    
 )
 
 # Add project symbols (macros)
