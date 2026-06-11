@@ -59,7 +59,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
         user/math_utils.hpp
         user/mem_utils.hpp
         user/motor.hpp
-        user/polinomial_profile.hpp
+        user/polynomial_profile.hpp
         user/protocol.hpp
         user/ring_buffer.hpp
         user/spsc_queue.hpp

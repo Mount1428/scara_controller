@@ -6,7 +6,7 @@
 #include <tim.h>
 
 #include <type_def.hpp>
-#include <polinomial_profile.hpp>
+#include <polynomial_profile.hpp>
 #include <spsc_queue.hpp>
 #include <protocol.hpp>
 
@@ -127,7 +127,7 @@ namespace user
         struct Segment
         {
             std::uint32_t duration_us; // 运动段持续时间（单位：微秒）
-            PolinomialProfile x_profile, y_profile;
+            PolynomialProfile x_profile, y_profile;
         };
 
         explicit Controller(Motor &motor_x, Motor &motor_y) noexcept

@@ -4,7 +4,7 @@
 #include <cstring>
 
 #include <math_utils.hpp>
-#include <polinomial_profile.hpp>
+#include <polynomial_profile.hpp>
 #include <protocol.hpp>
 #include <ring_buffer.hpp>
 #include <spsc_queue.hpp>
@@ -144,14 +144,14 @@ void user_loop()
                                 last_speed_y = 0;
                             }
 
-                            constexpr user::PolinomialProfile::Type profile_type = user::PolinomialProfile::Type::Cubic;
-                            user::PolinomialProfile x_profile(
+                            constexpr user::PolynomialProfile::Type profile_type = user::PolynomialProfile::Type::Cubic;
+                            user::PolynomialProfile x_profile(
                                 profile_type,
                                 last_target_x, motor_0.rad_to_step(frame.target_angle[0]),
                                 duration_ms,
                                 last_speed_x,
                                 motor_0.rad_per_sec_to_step_per_ms(frame.target_speed[0]));
-                            user::PolinomialProfile y_profile(
+                            user::PolynomialProfile y_profile(
                                 profile_type,
                                 last_target_y, motor_1.rad_to_step(frame.target_angle[1]),
                                 duration_ms,

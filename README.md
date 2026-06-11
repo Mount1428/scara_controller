@@ -58,7 +58,7 @@ SCARA 机械臂底层控制器固件，基于 STM32F103C8 (Cortex-M3, 72MHz) 微
 │   ├── config.hpp        # 全局配置 (电机参数、串口波特率、运动学参数)
 │   ├── protocol.hpp      # 二进制协议定义
 │   ├── motor.hpp         # Motor 类 (步进控制) + Controller 类 (队列调度)
-│   ├── polinomial_profile.hpp  # 三次多项式轨迹规划器
+│   ├── polynomial_profile.hpp  # 三次多项式轨迹规划器
 │   ├── ring_buffer.hpp   # 无锁 SPSC 环形缓冲区 (UART RX)
 │   ├── spsc_queue.hpp    # 无锁 SPSC 队列 (运动段)
 │   └── math_utils.hpp    # 数学工具函数
