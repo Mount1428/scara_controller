@@ -6,6 +6,8 @@
 #include <span>
 #include <atomic>
 
+#include <mem_utils.hpp>
+
 namespace user
 {
     template <std::size_t Capacity>
@@ -72,16 +74,10 @@ namespace user
 
             // Write item to buffer with wrap-around
             std::size_t first_chunk = std::min(item.size(), storage_capacity() - tail_);
-            for (std::size_t i = 0, current_tail = tail_; i < first_chunk; ++i)
-            {
-                buffer_[current_tail + i] = item[i];
-            }
-            
+            fast_copy(item.data(), first_chunk, &buffer_[tail_]);
+
             std::size_t remaining = item.size() - first_chunk;
-            for (std::size_t i = 0; i < remaining; ++i)
-            {
-                buffer_[i] = item[first_chunk + i];
-            }
+            fast_copy(item.data() + first_chunk, remaining, &buffer_[0]);
 
             tail_ = normal_index(tail_ + item.size());
             return true;
@@ -96,16 +92,10 @@ namespace user
 
             // Read item from buffer with wrap-around
             std::size_t first_chunk = std::min(out.size(), storage_capacity() - head_);
-            for (std::size_t i = 0, current_head = head_; i < first_chunk; ++i)
-            {
-                out[i] = buffer_[current_head + i];
-            }
-            
+            fast_copy(&buffer_[head_], first_chunk, out.data());
+
             std::size_t remaining = out.size() - first_chunk;
-            for (std::size_t i = 0; i < remaining; ++i)
-            {
-                out[first_chunk + i] = buffer_[i];
-            }
+            fast_copy(&buffer_[0], remaining, out.data() + first_chunk);
 
             return true;
         }
