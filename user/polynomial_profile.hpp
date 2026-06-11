@@ -88,9 +88,7 @@ namespace user
             }
             else // Cubic
             {
-                Scalar ms_2 = ms * ms;
-                Scalar ms_3 = ms_2 * ms;
-                return std::lround(a1 * ms + a2 * ms_2 + a3 * ms_3) + offset_step_;
+                return std::lround(ms * (a1 + ms * (a2 + ms * a3))) + offset_step_;
             }
         }
 
