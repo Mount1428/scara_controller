@@ -1,5 +1,6 @@
 #pragma once
 
+#include <bit>
 #include <cstdint>
 #include <numbers>
 
@@ -9,20 +10,16 @@ namespace user
         requires(iterations > 0)
     inline constexpr float inv_sqrt(float x) noexcept
     {
-        union
-        {
-            float f;
-            uint32_t i;
-        } u;
-        u.f = x;
-        u.i = 0x5f3759df - (u.i >> 1); // Initial guess
+        std::uint32_t i = std::bit_cast<std::uint32_t>(x);
+        i = 0x5f3759df - (i >> 1);
+        float f = std::bit_cast<float>(i);
 
         for (std::size_t iter = 0; iter < iterations; iter++)
         {
-            u.f *= 1.5f - 0.5f * x * (u.f * u.f); // Newton-Raphson iteration
+            f *= 1.5f - 0.5f * x * (f * f);
         }
 
-        return u.f;
+        return f;
     }
 
     template <std::size_t iterations = 1>
