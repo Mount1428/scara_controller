@@ -192,9 +192,9 @@ namespace user
             return segment_queue_.front();
         }
 
-        std::optional<Segment> final_segment() const noexcept
+        auto final_segment() const noexcept
         {
-            return segment_queue_.back();
+            return segment_queue_.back_ptr();
         }
 
         void emergency_stop() noexcept

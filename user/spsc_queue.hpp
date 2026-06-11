@@ -113,5 +113,18 @@ namespace user
             std::size_t last = prev_index(current_tail);
             return buffer_[last]; // Return a copy of the back item
         }
+
+        std::optional<std::add_pointer_t<const T>> back_ptr() const noexcept
+        {
+            std::size_t current_tail = tail_.load(std::memory_order_acquire);
+
+            if (current_tail == head_.load(std::memory_order_acquire))
+            {
+                return std::nullopt; // Queue is empty
+            }
+
+            std::size_t last = prev_index(current_tail);
+            return &buffer_[last];
+        }
     };
 } // namespace user

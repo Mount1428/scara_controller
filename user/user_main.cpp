@@ -136,12 +136,11 @@ void user_loop()
                             std::int32_t last_target_x, last_target_y, last_speed_x, last_speed_y;
 
                             controller.target_step(last_target_x, last_target_y);
-                            if (auto current_segment_opt = controller.final_segment();
-                                current_segment_opt.has_value())
+                            if (auto last_seg = controller.final_segment();
+                                last_seg.has_value())
                             {
-                                const auto &current_segment = current_segment_opt.value();
-                                last_speed_x = current_segment.x_profile.end_speed();
-                                last_speed_y = current_segment.y_profile.end_speed();
+                                last_speed_x = last_seg.value()->x_profile.end_speed();
+                                last_speed_y = last_seg.value()->y_profile.end_speed();
                             }
                             else
                             {
