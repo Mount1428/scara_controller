@@ -28,7 +28,7 @@ namespace user::config
         .limit = {deg_to_rad(-20.0f), deg_to_rad(110.0f)},
         .init_offset = deg_to_rad(-20.0f)};
 
-    constexpr std::size_t g_updateDurationUs = 50;
+    constexpr std::size_t g_updateDurationUs = 100; // 与 TIM1 配置一致 (PSC=71, ARR=99 → 10kHz)
 
     // kinematic config
     constexpr float g_br = 0.12f; // 大臂长度

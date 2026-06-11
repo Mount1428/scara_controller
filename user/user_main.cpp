@@ -83,7 +83,7 @@ void user_init()
         &htim1, HAL_TIM_PERIOD_ELAPSED_CB_ID,
         [](TIM_HandleTypeDef *htim)
         {
-            controller.update_handler(100); // 定时器每100us触发一次
+            controller.update_handler(user::config::g_updateDurationUs);
         });
     HAL_TIM_Base_Start_IT(&htim1); // 启动定时器中断
 }
@@ -109,9 +109,9 @@ void user_loop()
                             uart_rx_buffer.pop(sizeof(frame)); // 弹出这个命令帧
 
                             // 验证数据格式
-                            if (!std::isnormal(frame.target_angle[0]) || !std::isnormal(frame.target_angle[1]) ||
-                                std::isnan(frame.target_speed[0]) || std::isnan(frame.target_speed[1]) ||
-                                !std::isnormal(frame.process_time))
+                            if (!std::isfinite(frame.target_angle[0]) || !std::isfinite(frame.target_angle[1]) ||
+                                !std::isfinite(frame.target_speed[0]) || !std::isfinite(frame.target_speed[1]) ||
+                                !std::isfinite(frame.process_time) || frame.process_time <= 0.0f)
                             {
                                 // 数据格式错误
                                 uart_send(user::NackFrame{user::Reason::InvalidData}); // 发送一个NACK响应
@@ -127,7 +127,7 @@ void user_loop()
                             }
 
                             // 处理轨迹
-                            std::uint32_t duration_ms = static_cast<std::uint32_t>(frame.process_time * 1e3f);
+                            std::uint32_t duration_ms = std::lround(frame.process_time * 1e3f);
                             std::int32_t last_target_x, last_target_y, last_speed_x, last_speed_y;
 
                             controller.target_step(last_target_x, last_target_y);
