@@ -10,6 +10,8 @@ on:
 
 env:
   BUILD_TYPE: Release
+  GCC_VERSION: "14.2"
+  GCC_RELEASE: "14.2.rel1"
 
 jobs:
   build:
@@ -18,10 +20,28 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install ARM toolchain
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build xz-utils
+
+      - name: Cache ARM toolchain
+        uses: actions/cache@v4
+        id: cache-toolchain
+        with:
+          path: ${{ runner.temp }}/arm-gnu-toolchain
+          key: arm-gnu-toolchain-${{ env.GCC_RELEASE }}
+
+      - name: Download ARM GNU Toolchain
+        if: steps.cache-toolchain.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-arm-none-eabi cmake ninja-build
+          mkdir -p ${{ runner.temp }}/arm-gnu-toolchain
+          curl -L "https://developer.arm.com/-/media/Files/downloads/gnu/${{ env.GCC_RELEASE }}/binrel/arm-gnu-toolchain-${{ env.GCC_RELEASE }}-x86_64-arm-none-eabi.tar.xz" \
+            | tar -xJ --strip-components=1 -C ${{ runner.temp }}/arm-gnu-toolchain
+
+      - name: Add toolchain to PATH
+        run: echo "${{ runner.temp }}/arm-gnu-toolchain/bin" >> $GITHUB_PATH
+
+      - name: Show toolchain version
+        run: arm-none-eabi-gcc --version
 
       - name: Configure CMake
         run: cmake --preset ${{ env.BUILD_TYPE }}
