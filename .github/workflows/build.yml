@@ -36,7 +36,7 @@ jobs:
           echo "version=$LATEST" >> $GITHUB_OUTPUT
 
       - name: Cache ARM toolchain
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         id: cache-toolchain
         with:
           path: ${{ runner.temp }}/arm-gnu-toolchain
@@ -84,7 +84,7 @@ jobs:
           echo "| BIN | scara_controller.bin |" >> $GITHUB_STEP_SUMMARY
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: scara-controller-firmware
           path: |
