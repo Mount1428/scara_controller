@@ -55,7 +55,7 @@ namespace user
             }
         }
 
-        consteval std::size_t capacity() const noexcept
+        static consteval std::size_t capacity() noexcept
         {
             return storage_capacity() - 1;
         }
