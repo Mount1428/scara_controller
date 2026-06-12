@@ -10,8 +10,6 @@ on:
 
 env:
   BUILD_TYPE: Release
-  GCC_VERSION: "14.2"
-  GCC_RELEASE: "14.2.rel1"
 
 jobs:
   build:
@@ -23,19 +21,35 @@ jobs:
       - name: Install build tools
         run: sudo apt-get update && sudo apt-get install -y cmake ninja-build xz-utils
 
+      - name: Detect latest ARM toolchain version
+        id: detect
+        run: |
+          # Fetch the downloads page and extract the latest toolchain version
+          PAGE=$(curl -sL "https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads")
+          # Match the pattern: arm-gnu-toolchain-X.Y.relZ-x86_64-arm-none-eabi.tar.xz
+          LATEST=$(echo "$PAGE" | grep -oP 'arm-gnu-toolchain-\K[0-9]+\.[0-9]+\.rel[0-9]+' | sort -V | tail -1)
+          if [ -z "$LATEST" ]; then
+            echo "Failed to detect latest version, falling back to 14.2.rel1"
+            LATEST="14.2.rel1"
+          fi
+          echo "Detected version: $LATEST"
+          echo "version=$LATEST" >> $GITHUB_OUTPUT
+
       - name: Cache ARM toolchain
         uses: actions/cache@v4
         id: cache-toolchain
         with:
           path: ${{ runner.temp }}/arm-gnu-toolchain
-          key: arm-gnu-toolchain-${{ env.GCC_RELEASE }}
+          key: arm-gnu-toolchain-${{ steps.detect.outputs.version }}
 
       - name: Download ARM GNU Toolchain
         if: steps.cache-toolchain.outputs.cache-hit != 'true'
         run: |
+          VERSION="${{ steps.detect.outputs.version }}"
+          URL="https://developer.arm.com/-/media/Files/downloads/gnu/${VERSION}/binrel/arm-gnu-toolchain-${VERSION}-x86_64-arm-none-eabi.tar.xz"
+          echo "Downloading: $URL"
           mkdir -p ${{ runner.temp }}/arm-gnu-toolchain
-          curl -L "https://developer.arm.com/-/media/Files/downloads/gnu/${{ env.GCC_RELEASE }}/binrel/arm-gnu-toolchain-${{ env.GCC_RELEASE }}-x86_64-arm-none-eabi.tar.xz" \
-            | tar -xJ --strip-components=1 -C ${{ runner.temp }}/arm-gnu-toolchain
+          curl -L "$URL" | tar -xJ --strip-components=1 -C ${{ runner.temp }}/arm-gnu-toolchain
 
       - name: Add toolchain to PATH
         run: echo "${{ runner.temp }}/arm-gnu-toolchain/bin" >> $GITHUB_PATH
@@ -58,6 +72,7 @@ jobs:
       - name: Generate build summary
         run: |
           echo "## Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "**Toolchain:** ARM GNU Toolchain ${{ steps.detect.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           cat size-report.txt >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
