@@ -1,0 +1,82 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    name: Build Firmware
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install ARM toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc-arm-none-eabi cmake ninja-build
+
+      - name: Configure CMake
+        run: cmake --preset ${{ env.BUILD_TYPE }}
+
+      - name: Build
+        run: cmake --build build/${{ env.BUILD_TYPE }}
+
+      - name: Generate binary artifacts
+        run: |
+          arm-none-eabi-objcopy -O ihex build/${{ env.BUILD_TYPE }}/scara_controller.elf scara_controller.hex
+          arm-none-eabi-objcopy -O binary build/${{ env.BUILD_TYPE }}/scara_controller.elf scara_controller.bin
+          arm-none-eabi-size build/${{ env.BUILD_TYPE }}/scara_controller.elf | tee size-report.txt
+
+      - name: Generate build summary
+        run: |
+          echo "## Build Results" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          cat size-report.txt >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Format | File |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|------|" >> $GITHUB_STEP_SUMMARY
+          echo "| ELF | scara_controller.elf |" >> $GITHUB_STEP_SUMMARY
+          echo "| HEX | scara_controller.hex |" >> $GITHUB_STEP_SUMMARY
+          echo "| BIN | scara_controller.bin |" >> $GITHUB_STEP_SUMMARY
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v5
+        with:
+          name: scara-controller-firmware
+          path: |
+            scara_controller.elf
+            scara_controller.hex
+            scara_controller.bin
+            size-report.txt
+          retention-days: 30
+
+  release:
+    name: Publish Release
+    needs: build
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v5
+        with:
+          name: scara-controller-firmware
+
+      - name: Upload to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            scara_controller.elf
+            scara_controller.hex
+            scara_controller.bin
+            size-report.txt
