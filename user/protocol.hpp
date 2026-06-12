@@ -90,7 +90,7 @@ namespace user
         Header header{Command::StatusResponse};
         float angle[2]; ///< 当前两轴绝对角度（单位rad）
 
-        constexpr StatusResponseFrame() = default;
+        constexpr StatusResponseFrame() noexcept : angle{0.0f, 0.0f} {}
 
         constexpr StatusResponseFrame(float angle_0, float angle_1) noexcept
             : angle{angle_0, angle_1}

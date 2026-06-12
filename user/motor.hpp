@@ -15,7 +15,7 @@ namespace user
     class Motor
     {
     public:
-        Motor(const MotorConfig &config) noexcept
+        explicit Motor(const MotorConfig &config) noexcept
             : config_(config)
         {
             offset_step_ = (config.init_offset) * config.pulse_per_rev / (2.0f * std::numbers::pi_v<float>);
